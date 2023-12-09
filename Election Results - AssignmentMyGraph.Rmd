@@ -1,0 +1,137 @@
+---
+title: "DSCI 210: Mapping Election Results"
+author: "David Gerberry"
+output:
+  pdf_document: 
+    number_sections: true
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+---
+
+
+As always, we start off by loading up the packages we'll need for this.
+If there is a package that is new to you in this list, you will have to run "install.packages()" first.
+
+```{r setup, message=FALSE,warning=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+library(tidyverse)
+library(sf)
+library(readxl)
+library(RColorBrewer)
+```
+
+# Read in the map file
+
+The first thing we need to do is load our map(s). Maps in geospatial software  (ArcGIS, R, python, etc.) are stored as a "shapefile." These shapefiles create the maps as a group of polygons (i.e. points connected by line segments). We will probably need to get into the weeds a bit more about shapefiles later in the semester, but for now we can just think of them as the files that contain our maps, that will also eventually include the data associated with those maps.
+
+```{r}
+map2021 <- st_zm(st_read("PRECINCT2021_0311.shp"))
+
+class(map2021)
+print(map2021,n=3)
+```
+
+
+# Draw the map
+
+We have already seen how to make a map using ggplot().  In the Census maps that we we made, we used  ggplot(aes(fill = value)), but right now we have no data to color in the map with.  All ggplot() commands need to start with an aesthetic though, so we'll just leave it blank and use aes().
+
+```{r}
+map2021 %>%
+  ggplot(aes())+
+  geom_sf()
+```
+
+
+
+# Get election data and load it in
+
+Our overall goal is to use mapping to inform political campaigns. One thing that will be immediately valuable is be able to visualize the results of previous elections. The results of previous elections are available at the Hamilton County Board of Elections website.
+
+* https://votehamiltoncountyohio.gov/results/ 
+
+```{r}
+cinci21 <- read_excel("G21_Official_Canvass.xlsx", sheet = "Cincinnati", skip = 2)
+
+```
+
+
+# Merge election results with the shapefile
+
+```{r}
+maptest <- 
+  left_join(map2021, cinci21, by = c("NAME" = "PRECINCT"))
+
+```
+
+
+# Make a map of the election results
+
+```{r}
+maptest %>%
+  filter(grepl(" CIN ", NAME)) %>%
+  ggplot(aes(fill =`Reggie         Harris`))+
+  geom_sf()
+
+```
+The result of doing this looks like this.
+
+![](map1.png)
+
+# Spruce up the map to make it prettier, clearer, and ready for a presentation
+
+
+```{r eval=FALSE}
+map_reggie <- maptest %>% mutate(percentVote = `Reggie         Harris`/ `BALLOTS CAST TOTAL`) %>%
+  mutate(Reggie.baseswing = cut(percentVote, breaks = c(0, .40, .60, 1), label = c('Residual', 'Swing', 'Base')))
+
+map_reggie %>%
+  filter(grepl("CIN", NAME)) %>%
+  ggplot(aes(fill = percentVote)) +
+  geom_sf()+
+
+           
+  labs(title = "2021 City Council Race", 
+       subtitle = "Reggie Harris",
+       fill = "Percent of Votes per Precinct", 
+       caption = "")+
+  scale_fill_manual(
+    values = c(
+      "Residual" = "red",
+      "Base" = "blue",
+      "Swing" = "yellow")
+    )
+  )
+ 
+```
+The result of doing this looks like this.
+
+![](map2.png)
+
+NOW THAT IS ONE BEAUTIFUL ELECTION MAP!!
+
+
+# YOUR ASSIGNMENT
+
+Complete the following steps to make an election map for a 2021 City Council race (preferably one that is relevant to your candidate).
+
+The steps you need to complete are:
+
+1.  Read in the map file
+    + This should be easy.  You have the code I used for 2020 and you have the shapefiles for 2021.
+2.  Draw the map  
+    + Also easy
+3.  Get the election data and load it in:  Getting it is easy.  Loading it in will have some nuance
+4.  Merge election results with the shapefile
+5.  Make an intial map
+6.  Spruce up the map
+
+
+We're going to work on this together and not leave anyone behind.  This means as we figure stuff out we will want to share the commands that we used to make things happen.  Here is a place for us to do that. Open this document and keep it open in the background as we work.
+
+* https://docs.google.com/document/d/1WMtKYJ5ZkWlDjr5qm7qwxUwcCWNfs9QyDlTf_lJxQks/edit?usp=sharing 
+
+
