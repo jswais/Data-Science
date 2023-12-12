@@ -1,6 +1,6 @@
 ---
 title: "DSCI 210: Mapping Election Results"
-author: "David Gerberry"
+author: "Jack Swaisgood"
 output:
   pdf_document: 
     number_sections: true
