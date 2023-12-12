@@ -1,1 +1,1 @@
-
+A few of my classmates and I worked with the Reggie Harris 2023 Cincinnati City Council campaign. We collected, cleaned, and analyzed data to help assist him and his team. We also presented our findings to our peers throughout the year.
