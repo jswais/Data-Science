@@ -1,1 +1,2 @@
 This is my Honors Data Science Portfolio from my time at Xavier University.
+This repository represents my data science journey, featuring assignments and the final project from the BAIS 462 class. Also included are my efforts in the Reggie Harris Campaign, where my classmates and I utilized code and visualizations for political analysis. Additionally, the Xavier Retention file includes insights generated last summer to enhance student retention strategies. This portfolio is a combination of the significant tasks assigned to me during my time at Xavier University.
