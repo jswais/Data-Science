@@ -1,1 +1,1 @@
-This is my folder of assignments I worked on in Business Analytics 462 Programming in Analytics, as well as the final project.
+This is my folder of assignments I worked on in Business Analytics 462 Programming in Analytics, as well as the final project. I learned API skills, Web Scraping, sentiment analysis, and further increased my abilities in R. I applied these skills in said assignments and final project.
