@@ -1,0 +1,67 @@
+---
+title: "Spotify API"
+author: "Jack Swaisgood"
+format: html
+editor: visual
+---
+
+# Introduction
+
+Music is a large part of my daily schedule, and Spotify allows me to explore data involving this music. Curious people who love music would be inclined to use this.
+
+# Setting up API
+
+-   Go to <https://developer.spotify.com/documentation/web-api>
+
+-   Log in to your Spotify account
+
+-   Log into the dashboard (select "dashboard" )
+
+-   Select the "Create an App" button
+
+-   Enter the information necessary
+
+-   Create the App
+
+-   Go to Settings, view "Client Secret"
+
+-   This will hold the Client ID and Secret needed to use Spotify API
+
+# Packages
+
+```{r}
+#| include: false
+library(tidyverse)
+library(spotifyr)
+library(knitr)
+```
+
+These packages will assist us in our search for the information we want.
+
+# Accessing API in R
+
+```{r}
+#| eval: false
+Sys.setenv(SPOTIFY_CLIENT_ID = 'YOUR_CLIENT_ID')
+Sys.setenv(SPOTIFY_CLIENT_SECRET = 'YOUR_CLIENT_SECRET')
+access_token <- get_spotify_access_token()
+```
+
+These lines of code call our API, and allows us to work with the data that we want to.
+
+# Using Spotify API
+
+I want to see what the most popular songs are for one of my favorite bands, Nirvana. Fortunately, we are able to do this using the data.
+
+```{r}
+get_artist_top_tracks(
+  '6olE6TJLqED3rqDCT0FyPh', #nirvana ID
+  market = "US",
+  authorization = get_spotify_access_token(),
+  include_meta_info = FALSE
+) %>% select(name, popularity)
+```
+
+As we can see, their songs Smells Like Teen Spirit, Come As You Are, and Heart-Shaped Box are among the most popular Nirvana records.
+
+With an awesome tool like this, we can find lots of information about all things music!

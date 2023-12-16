@@ -1,0 +1,89 @@
+---
+title: "Assignment 6"
+author: "Jack Swaisgood"
+format: html
+editor: visual
+---
+
+## NCAA Men's Basketball Leading Scorers
+
+I want to find out why the leading scorers in NCAA Men's Basketball are who they are. There are obviously many factors that go into this, such as their scoring ability, situation, competition, etc. However, I want to use simply their shooting data to determine if there are any patterns to find, and if so, why these patterns occur.
+
+## Data
+
+```{r}
+player_master <- read.csv("https://myxavier-my.sharepoint.com/:x:/g/personal/swaisgoodj_xavier_edu/ES6iRGwYn3BCsxebbsGXh3MBWorMO5djRl14pA1NE0sgZg?download=1")
+```
+
+First of all, we need to find a source to actually get this data. Luckily, the NCAA has a large database with tons of statistics on Men's college hoops. From this data, I want to find out what statistics are helping these scorers score more.
+
+## Analysis
+
+```{r}
+#| include: false
+library(tidyverse)
+```
+
+The first thing I am wondering is how does position effect scoring?
+
+```{r}
+player_master %>% 
+  ggplot(aes(x = Position, y = Points_per_Game)) +
+  geom_bar(stat = "summary", fun = mean) +
+  labs(title = "Average PPG by Position",
+       y = "Average PPG")
+```
+
+We can see that the average points per game per position does not matter as much, but it does seem like Centers may score a bit more than Guards and Forwards. However, we are just looking at the top 250 leading scorers in the nation, so there may be more disparity among lesser scorers.
+
+There may be more disparity among class, as often times underclassmen don't get the same opportunity as their older counterparts.
+
+```{r}
+player_master %>% 
+  ggplot(aes(x = Class, y = Points_per_Game)) +
+  geom_bar(stat = "summary", fun = mean) +
+  labs(title = "Average PPG by Class",
+       y = "Average PPG") +
+  scale_x_discrete(labels = c("Fr." = "Freshman", "So." = "Sophomore",
+                              "Jr." = "Junior", "Sr." = "Senior"))
+```
+
+We can see that there also is not much of a difference between class, but upperclassmen might have a slightly higher average.
+
+It would be interesting to see how many of each are in the top 250 scorers in the NCAA.
+
+```{r}
+table(player_master$Class)
+```
+
+This is super interesting, but it makes a ton of sense. There are nearly as many seniors as there are other classes combined. Also noted that the NCAA designates simply these four classes, and doesn't include information on if the player has redshirted, transferred, or is a graduate student.
+
+The three point shot is as important as it has ever been in the game of basketball. More people and more teams shoot threes now than at any point in the history of the game. Let us see how three point makes effect scoring.
+
+```{r}
+player_master %>% 
+  ggplot(aes(x = Threes_Made, y = Points_per_Game)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  labs(title = "Relationship between Threes Made and PPG",
+       y = "Points per Game",
+       x = "Threes Made this Season")
+```
+
+Given the positive correlation of the data, it is safe to say that making more threes often leads to more scoring. It is also very interesting how there a number of players without a three point make yet this year, one of them being the third leading scorer in the NCAA.
+
+Lastly, we can test how free throws effect scoring. Some scorers live from the line and shoot many per game, while others don't go to the charity stripe nearly as often.
+
+```{r}
+player_master %>% 
+  ggplot(aes(x = Free_Throws_Made, y = Points_per_Game)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  labs(title = "Relationship between Free Throws Made and PPG",
+       y = "Points per Game",
+       x = "Free Throw Makes this season")
+```
+
+Unsurprisingly, there is a strong correlation between scoring a lot and making many free throws. Scoring more points often means taking more shots, which typically means more free throws. It is also important to point out that the three leading scorers on this list are also the three leaders in free throw makes.
+
+While basketball is a team game, the most important thing is to put the ball in the hoop. These players have done it better than anyone else this season, and do so in many ways.

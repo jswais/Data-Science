@@ -1,0 +1,130 @@
+---
+title: "Assignment 7"
+author: "Jack Swaisgood"
+format: html
+editor: visual
+---
+
+# Batman vs. Superman
+
+Going all the way back to my childhood, I have always been somewhat of a superhero nerd. I love reading about the history of the characters, and I try to watch as many superhero movies as I can. I have always been particularly fascinated with arguably the two most recognizable superheroes, Batman and Superman. They are very different in many ways, but also very similar.
+
+I want to see how others view the two superheroes. One way to do that is by taking two movies that were made in the same era, that both have similar "responsibilities" if you will. *Batman Begins* and *Man of Steel* are two movies that fit that description. Both were meant to serve as origin stories for the two heroes, and how those backgrounds lead to their styles.
+
+I will look at different reviews given to these two films and compare the two. I will try to see how the sentiment of these reviews are similar, and also how they differ.
+
+```{r}
+#| include: false
+superhero_master <- read.csv("https://myxavier-my.sharepoint.com/:x:/g/personal/swaisgoodj_xavier_edu/ESC_JQRCtDlFotaaV7zec_MBYjm-vNdUgZY3BxkIvXuZRw?download=1")
+```
+
+## Analysis
+
+### What Words are used to Describe these two Films?
+
+We need to look at what people are saying about these two movies. *Batman Begins* was considered a better movie by many, so will that have more positive words? However, Batman is considered a "darker" character, so *Batman Begins* may also have more negative words.
+
+```{r}
+#| include: false
+library(tidyverse)
+library(rvest)
+library(httr)
+library(stringr)
+library(lubridate)
+library(tidytext)
+library(textdata)
+
+superhero_master$Date <- dmy(superhero_master$Date)
+
+tidy_hero <- 
+  superhero_master %>% 
+  unnest_tokens(word, Review) %>% 
+  anti_join(stop_words)
+
+tidy_hero %>% 
+  group_by(Title, word) %>% 
+  summarize(n = n()) %>% 
+  arrange(-n)
+
+bing <- get_sentiments("bing")
+
+hero_counts <- 
+  tidy_hero %>% 
+  group_by(Title, word) %>% 
+  summarize(n = n()) %>% 
+  inner_join(bing)
+
+hero_counts %>%
+  group_by(Title,sentiment) %>% 
+  summarize(n = n()) %>% 
+  arrange(-n)
+
+nrc <- get_sentiments("nrc")
+```
+
+```{r}
+hero_counts %>% 
+  group_by(Title) %>% 
+  filter(n>5) %>% 
+  mutate(n = ifelse(sentiment == "negative", -n, n)) %>% 
+  mutate(word = reorder(word, n)) %>% 
+  ggplot(aes(word, n)) +
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~Title, ncol = 2) +
+  geom_text(aes(label = signif(n, digits = 3)), nudge_y = 8) +
+  labs(title = "Positive and Negative Words for Batman Begins and Man of Steel",
+       subtitle = "Only words appearing at least 5 times are shown")
+```
+
+Similarly to what I hypothesized earlier, there are more both positive and negative words about *Batman Begins*. I do not know if these means that *Man of Steel* is a bland movie, but people are definitely more descriptive in their Batman reviews.
+
+There are lots of words in the visualization that describe the movie as a whole, such as "perfect", "amazing", etc. We can see that "plot" is included in this as a negatively used word, but it is much more realistic it is being used as the plot of the movie, which is not negative. Therefore, we will remove that word going forward.
+
+Words that describe the actual events of the movie are included too, such as "destruction", "dark", "crime", etc. It is pretty interesting to see that "destruction" appears only for *Man of Steel*, and *"*crime" only for *Batman Begins*, even though those things happen in both movies. However, if you have seen these movies, it makes sense why this happens, as there is tons of destruction in *Man of Steel*, and tons of crime in *Batman Begins*.
+
+### Have People's Opinions of these Films Changed over time?
+
+Sometimes people do not appreciate movies when they first come out, but are looked back at in a far more positive light. Let us see if that is the case here.
+
+```{r}
+tidy_hero %>%
+  inner_join(bing) %>% 
+  mutate(date = ymd(Date), year = year(Date)) %>% 
+  filter(!word %in% c("plot")) %>% 
+  group_by(Title, year, sentiment) %>% 
+  summarize(n = n()) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative) %>% 
+  ggplot(aes(x = year, y = sentiment, fill = Title)) +
+  geom_col(position = "dodge") +
+  labs(title = "Movie Positivity Scores by Year",
+       subtitle = "Positivity score is the total number of positive words minus total negative words",
+       y = "Total Positivity Score",
+       x = "Year",
+       fill = "Title")
+```
+
+We can see that for the first few years in the visualization, only *Batman Begins* has any sort of score. This is because it came out a few years before *Man of Steel*. In the years following *Man of Steel's* release, both films have seen up and down reviews. My belief on this is because Marvel movies started becoming far more popular than DC movies, and since both Superman and Batman are DC, they have seemingly become more controversial of opinion than the generally well received Marvel movies.
+
+### What Emotions do Reviewers Display Regarding these Movies?
+
+I wonder how other people feel after watching these films. I always get excited afterwards, as I love superhero movies. However, I'm sure many people feel differently after watching these movies. We should make a visualization to depict these emotions.
+
+```{r}
+tidy_hero %>% 
+  inner_join(nrc, by = "word", relationship = "many-to-many") %>% 
+  group_by(sentiment, Title) %>% 
+  summarize(n = n()) %>% 
+  ggplot(aes(x = sentiment, y = n, fill = Title)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Movie Sentiment Scores",
+       subtitle = "Total number of emotive words scored ",
+       y = "Total Number of Words",
+       x = "Emotional Sentiment",
+       fill = "Title")
+```
+
+We see here that the reviewers were generally less emotional about *Man of Steel*. Given that they are superhero movies, it is unsurprising to see lots of emotions that are generally seen as a good thing. Comparing the two movies, it is interesting to see that there is a higher ratio of positives to negatives for *Man of Steel* than there is for *Batman Begins*.
+
+After analyzing the two movies, we can see that there truly are lots of similarities and differences between *Batman Begins* and *Man of Steel*.

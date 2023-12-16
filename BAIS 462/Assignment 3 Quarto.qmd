@@ -1,0 +1,35 @@
+---
+title: "Assignment 3 Quarto"
+author: "Jack Swaisgood"
+format: html
+editor: visual
+execute:
+  warning: FALSE
+---
+
+## Are Larger Lineman Ranked Higher than Smaller Lineman?
+
+Size is a very important part of playing "in the trenches" in modern college football. I will look at player's weight, and will try to find out if the larger kids are generally ranked higher.
+
+```{r}
+#| include: false
+library(readr)
+library(tidyverse)
+cfbrec <- read_csv("https://myxavier-my.sharepoint.com/:x:/g/personal/swaisgoodj_xavier_edu/EU9MGYhdXVBEjRhkeieroL0BmPssGx8N5q1Pr1jNPLtDJg?download=1")
+
+```
+
+I will gauge how highly ranked these players are by their number of stars, as players with more stars are the more highly touted recruits. 4 and 5 star players are called "blue-chip recruits", as they are generally who college football powerhouses go after. I will need to filter in Centers, Guards, Offensive tackles and Defensive tackles, as these are the players I am seeking information about.
+
+```{r}
+cfbrec %>% 
+  filter(position %in% c('OC', 'OG', 'OT', 'DT')) %>%
+  ggplot(aes(x = stars, y = weight)) +
+  geom_bar(stat = "summary", fun = mean) +
+  labs(title = "Average Weight of O-Line and D-Tackles per Star", 
+       x = "Number of Stars",
+       y = "Average Weight")
+
+```
+
+I found that there is a slightly positive relationship between weight and number of stars that recruits have. An interesting feature that I didn't expect was that these "blue-chip recruits" that I mentioned earlier are fairly clearly larger than the rest of the recruits. To answer my question: yes, larger players "in the trenches" tend to be higher ranked than smaller ones.
